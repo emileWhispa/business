@@ -1,0 +1,23 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Default path will just redirect to the computer list
+GET     /                                       controllers.HomeController.index
+GET     /index/products/                        controllers.DataController.index(request:Request)
+GET     /index/category/                        controllers.DataController.category(request:Request)
+GET     /index/sales/hist/                      controllers.DataController.salesHistory(request:Request)
+GET     /index/view/hist/purchase/              controllers.DataController.purchaseHistory(request:Request)
+GET     /index/edit/modal/:id/:clazz/           controllers.DataController.editModal(id:Long,clazz:String,request:Request)
+POST    /index/save/category/                   controllers.DataController.saveCategory(request:Request)
+POST    /index/save/product/                    controllers.DataController.saveProduct(request:Request)
+POST    /index/save/purchase/                    controllers.DataController.savePurchase(request:Request)
+POST    /index/save/hist/sales/                 controllers.DataController.saveSales(request:Request)
+POST    /index/save/modal/:id/:clazz/           controllers.DataController.saveEdited(id:Long,clazz:String,request:Request)
+POST    /login                                  controllers.HomeController.login(request:Request)
+
+# Computers list (look at the default values for pagination parameters)
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
