@@ -51,9 +51,14 @@ public class HomeController extends BaseController {
 
         User user = form.get();
 
-        if (user.exist()) {
+        User exist = user.exist();
+        if (exist != null) {
 
-            return ok(Json.newObject().put("token", getJWT()).put("email",user.username).put("username", user.username).put("password", user.password));
+            return ok(Json.newObject().put("token", getJWT())
+                    .put("email",exist.email)
+                    .put("role",exist.role)
+                    .put("username", exist.username)
+                    .put("password", user.password));
         } else {
             return ok(Json.newObject().put("error","Username or password is invalid"));
         }

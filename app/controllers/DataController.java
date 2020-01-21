@@ -3,10 +3,11 @@ package controllers;
 import Helper.Finder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.History;
-import models.Product;
-import models.ProductCategory;
-import models.Sale;
+import io.ebean.Expr;
+import io.ebean.Expression;
+import io.ebean.ExpressionList;
+import models.*;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
@@ -16,6 +17,7 @@ import play.mvc.Result;
 import play.mvc.Security;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 @Security.Authenticated(value = DataSecurity.class)
 public class DataController extends BaseController {
@@ -39,18 +41,43 @@ public class DataController extends BaseController {
         return ok(ProductCategory.finder.setToken(node).setSaveRoute(url).setPageTitle("List of categories").setTitle("New category form").page());
     }
 
+    public Result employees(Http.Request request){
+        ObjectNode node = Json.newObject();
+        putToken(node,request);
+        String url = routes.DataController.saveEmployee().absoluteURL(request);
+        return ok(User.finder.setToken(node).setSaveRoute(url).setPageTitle("List of employees").setTitle("New employee form").page());
+    }
+
+    public Result loadProducts(Http.Request request){
+        return ok(Product.finder.nodeList());
+    }
+
+
+
     public Result salesHistory(Http.Request request){
         ObjectNode node = Json.newObject();
         putToken(node,request);
         String url = routes.DataController.saveSales().absoluteURL(request);
-        return ok(Sale.finder.setToken(node).setSaveRoute(url).setPageTitle("Sales history").setTitle("New sales form").page());
+
+        Expression expression = null;
+        Optional<String> username = request.header("username");
+        if( username.isPresent() ){
+            expression = Expr.eq("user.username",username.get());
+        }
+        return ok(Sale.finder.setToken(node).setPageExp(expression).setSaveRoute(url).setPageTitle("Sales history").setTitle("New sales form").page());
     }
 
     public Result purchaseHistory(Http.Request request){
         ObjectNode node = Json.newObject();
         putToken(node,request);
         String url = routes.DataController.savePurchase().absoluteURL(request);
-        return ok(History.finder.setToken(node).setSaveRoute(url).setPageTitle("Purchases history").setTitle("New sales form").page());
+
+        Expression expression = null;
+        Optional<String> username = request.header("username");
+        if( username.isPresent() ){
+            expression = Expr.eq("user.username",username.get());
+        }
+        return ok(History.finder.setToken(node).setPageExp(expression).setSaveRoute(url).setPageTitle("Purchases history").setTitle("New sales form").page());
     }
 
 
@@ -62,8 +89,53 @@ public class DataController extends BaseController {
     }
 
 
+    public Result viewSaleReport(Http.Request request){
+
+        DynamicForm form = formFactory.form().bindFromRequest(request);
+        ExpressionList<Sale> query = Sale.finder.query();
+        Optional<String> product = form.field("product").value();
+        if( product.isPresent() && !product.get().equals("0")){
+            query.eq("product.id",product.get());
+        }
+        Optional<String> start = form.field("start").value();
+        Optional<String> end = form.field("end").value();
+        if( start.isPresent() && end.isPresent() ){
+            query.between("date",start.get(),end.get());
+        }
+        return ok(Json.toJson(query.findList()));
+    }
+
+
+    public Result viewHistoryReport(Http.Request request){
+        DynamicForm form = formFactory.form().bindFromRequest(request);
+        ExpressionList<History> query = History.finder.query();
+        Optional<String> start = form.field("start").value();
+        Optional<String> end = form.field("end").value();
+        Optional<String> product = form.field("product").value();
+        if( product.isPresent() && !product.get().equals("0")){
+            query.eq("product.id",product.get());
+        }
+        if( start.isPresent() && end.isPresent() ){
+            query.between("date",start.get(),end.get());
+        }
+        return ok(Json.toJson(query.findList()));
+    }
+
+
+
+    public Result saveEmployee(Http.Request request){
+        User category = User.finder.formData(formFactory, request);
+        category.role = "employee";
+        category.save();
+        return one();
+    }
+
+
     public Result savePurchase(Http.Request request){
         History category = History.finder.formData(formFactory, request);
+
+        Optional<String> username = request.header("username");
+        username.ifPresent(s -> category.user = User.finder.query().eq("username", s).setMaxRows(1).findOne());
         category.save();
         return one();
     }
@@ -72,6 +144,8 @@ public class DataController extends BaseController {
 
     public Result saveSales(Http.Request request){
         Sale category = Sale.finder.formData(formFactory, request);
+        Optional<String> username = request.header("username");
+        username.ifPresent(s -> category.user = User.finder.query().eq("username", s).setMaxRows(1).findOne());
         category.save();
         return one();
     }
