@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 14, 2020 at 03:51 PM
+-- Generation Time: Jan 27, 2020 at 08:07 PM
 -- Server version: 10.4.6-MariaDB
 -- PHP Version: 7.3.9
 
@@ -42,8 +42,27 @@ CREATE TABLE `history` (
 --
 
 INSERT INTO `history` (`id`, `date`, `product_id`, `int_package`, `piece`, `user_id`) VALUES
-(1, '2020-01-07 14:00:15.000000', 2, 10, 20, NULL),
-(2, '2020-01-07 14:01:37.000000', 3, 40, 10, NULL);
+(1, '2020-01-27 15:41:52.000000', 2, 100, 100, 1),
+(2, '2020-01-27 15:42:06.000000', 1, 120, 125, 1),
+(3, '2020-01-27 15:42:16.000000', 2, 21, 20, 1),
+(4, '2020-01-27 15:42:25.000000', 2, 20, 20, 1),
+(5, '2020-01-27 15:42:37.000000', 1, 110, 220, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `play_evolutions`
+--
+
+CREATE TABLE `play_evolutions` (
+  `id` int(11) NOT NULL,
+  `hash` varchar(255) NOT NULL,
+  `applied_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `apply_script` mediumtext DEFAULT NULL,
+  `revert_script` mediumtext DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `last_problem` mediumtext DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -65,10 +84,8 @@ CREATE TABLE `product` (
 --
 
 INSERT INTO `product` (`id`, `date`, `name`, `int_package`, `piece`, `category_id`) VALUES
-(1, '2020-01-07 00:00:00.000000', 'Dev', 3, 2, 1),
-(2, '2020-01-07 13:06:08.000000', 'Dangote', 32, 11, 1),
-(3, '2020-01-07 13:05:58.000000', 'Milk', 15, 20, 4),
-(4, '2020-01-07 09:53:03.000000', 'Sweet pops', 12, 12, 3);
+(1, '2020-01-27 14:53:29.000000', 'Product one', 12, 12, 2),
+(2, '2020-01-27 14:54:48.000000', 'Product two', 20, 30, 3);
 
 -- --------------------------------------------------------
 
@@ -87,11 +104,9 @@ CREATE TABLE `product_category` (
 --
 
 INSERT INTO `product_category` (`id`, `date`, `category_name`) VALUES
-(1, '2020-01-07 14:19:35.000000', 'First caterine'),
-(2, '2020-01-07 08:40:22.000000', 'Developers'),
-(3, '2020-01-07 09:37:55.000000', 'Swener'),
-(4, '2020-01-07 10:03:56.000000', 'Sweet pop'),
-(5, '2020-01-07 10:05:31.000000', 'Anantenda');
+(1, '2020-01-27 14:43:55.000000', 'Category love'),
+(2, '2020-01-27 14:47:54.000000', 'Data one'),
+(3, '2020-01-27 14:48:01.000000', 'Cliclik');
 
 -- --------------------------------------------------------
 
@@ -127,10 +142,11 @@ CREATE TABLE `sale` (
 --
 
 INSERT INTO `sale` (`id`, `date`, `product_id`, `int_package`, `piece`, `user_id`, `commission`) VALUES
-(1, '2020-01-07 14:16:18.000000', 3, 45, 12, NULL, 6.5),
-(2, '2020-01-07 13:38:52.000000', 4, 50, 12, NULL, 12.5),
-(3, '2020-01-07 13:39:07.000000', 4, 10, 12, NULL, 3.8),
-(4, '2020-01-07 13:39:29.000000', 2, 30, 123, NULL, 233);
+(1, '2020-01-27 15:17:58.000000', 1, 20, 20, 1, 20),
+(2, '2020-01-27 15:18:09.000000', 2, 10, 10, 1, 20),
+(3, '2020-01-27 18:13:37.000000', 1, 12, 23, 2, 12),
+(4, '2020-01-27 18:13:49.000000', 1, 20, 21, 2, 12),
+(5, '2020-01-27 18:14:00.000000', 2, 30, 230, 2, 34);
 
 -- --------------------------------------------------------
 
@@ -145,15 +161,17 @@ CREATE TABLE `user` (
   `email` varchar(255) DEFAULT NULL,
   `profile` varchar(255) DEFAULT NULL,
   `username` varchar(255) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL
+  `password` varchar(255) DEFAULT NULL,
+  `role` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `date`, `full_name`, `email`, `profile`, `username`, `password`) VALUES
-(1, '2020-01-07 00:00:00.000000', 'Whisp', 'demo@example.com', 'pro', 'demo@example.com', 'demo#123');
+INSERT INTO `user` (`id`, `date`, `full_name`, `email`, `profile`, `username`, `password`, `role`) VALUES
+(1, '2020-01-27 00:00:00.000000', 'Kwizera', 'demo@example.com', NULL, 'demo@example.com', 'demo#123', 'admin'),
+(2, '2020-01-27 15:51:02.000000', '', 'kwizeraemile125@gmail.com', '', 'username', '123', 'employee');
 
 -- --------------------------------------------------------
 
@@ -177,15 +195,21 @@ CREATE TABLE `user_role` (
 --
 ALTER TABLE `history`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `ix_history_product_id` (`product_id`),
-  ADD KEY `ix_history_user_id` (`user_id`);
+  ADD KEY `fk_history_product_id` (`product_id`),
+  ADD KEY `fk_history_user_id` (`user_id`);
+
+--
+-- Indexes for table `play_evolutions`
+--
+ALTER TABLE `play_evolutions`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `product`
 --
 ALTER TABLE `product`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `ix_product_category_id` (`category_id`);
+  ADD KEY `fk_product_category_id` (`category_id`);
 
 --
 -- Indexes for table `product_category`
@@ -204,8 +228,8 @@ ALTER TABLE `role`
 --
 ALTER TABLE `sale`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `ix_sale_product_id` (`product_id`),
-  ADD KEY `ix_sale_user_id` (`user_id`);
+  ADD KEY `fk_sale_product_id` (`product_id`),
+  ADD KEY `fk_sale_user_id` (`user_id`);
 
 --
 -- Indexes for table `user`
@@ -218,8 +242,8 @@ ALTER TABLE `user`
 --
 ALTER TABLE `user_role`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `ix_user_role_user_id` (`user_id`),
-  ADD KEY `ix_user_role_role_id` (`role_id`);
+  ADD KEY `fk_user_role_user_id` (`user_id`),
+  ADD KEY `fk_user_role_role_id` (`role_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -229,19 +253,19 @@ ALTER TABLE `user_role`
 -- AUTO_INCREMENT for table `history`
 --
 ALTER TABLE `history`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `product`
 --
 ALTER TABLE `product`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `product_category`
 --
 ALTER TABLE `product_category`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `role`
@@ -253,13 +277,13 @@ ALTER TABLE `role`
 -- AUTO_INCREMENT for table `sale`
 --
 ALTER TABLE `sale`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `user_role`
