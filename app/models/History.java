@@ -8,7 +8,6 @@ import javax.persistence.ManyToOne;
 
 @Entity
 public class History extends BaseModel {
-
     @ManyToOne @FormProp
     public Product product;
     @FormProp(tbl = true,display = "Package")

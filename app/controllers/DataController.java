@@ -17,6 +17,7 @@ import play.mvc.Result;
 import play.mvc.Security;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
 
 @Security.Authenticated(value = DataSecurity.class)
@@ -103,6 +104,25 @@ public class DataController extends BaseController {
             query.between("date",start.get(),end.get());
         }
         return ok(Json.toJson(query.findList()));
+    }
+
+
+    public Result maxClient(Http.Request request){
+
+        DynamicForm form = formFactory.form().bindFromRequest(request);
+        ExpressionList<User> query = User.finder.query();
+
+        Optional<String> start = form.field("start").value();
+        Optional<String> end = form.field("end").value();
+
+        List<User> _list = query.findList();
+
+        for (User user : _list ){
+            user.count = user.Count(start.orElse(""),end.orElse(""));
+            user.count2 = user.Count2(start.orElse(""),end.orElse(""));
+        }
+
+        return ok(Json.toJson(_list));
     }
 
 

@@ -2,6 +2,7 @@ package models;
 
 import Helper.Finder;
 import Helper.FormProp;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -22,6 +23,7 @@ public class Sale extends BaseModel {
     public static Finder<Sale> finder = new Finder<>(Sale.class);
 
     @FormProp(tblOnly = true,display = "Product name")
+    @JsonProperty
     public String print(){
         return product.name;
     }
